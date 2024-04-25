@@ -1,0 +1,61 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <algorithm>
+
+class Items{
+public:
+    int wei;
+    int val;
+    Items(int w, int v) : wei(w), val(v) {}
+};
+
+class Parser {
+public:
+    static std::vector<Items> input(const std::string& filename) {
+        std::vector<Items> items;
+        int i;
+        int N;
+        int n;
+        std::ifstream file(filename);
+        if (!file.is_open()) {
+            std::cerr << "Error" << std::endl;
+            exit(1);
+        }
+        file >> N;
+        file >> n;
+        for (i = 0; i < n; i++) {
+            int w, v;
+            file >> w >> v;
+            items.emplace_back(w, v);
+        }
+        file.close();
+        return items;
+    }
+};
+class Solver {
+public:
+    static int ans_k(const std::vector<Items>& items, int N) {
+        int n = items.size();
+        int max = 0;
+        ans(items, 0, 0, 0, N, max);
+        return max;
+    }
+private:
+    static void ans(const std::vector<Items>& items, int index, int Far, int wFar, int N, int& max) {
+        if (wFar>N) return;
+        max = std::max(max, Far);
+        if (index==items.size()) return;
+        ans(items, index+1, Far+items[index].val, wFar+items[index].wei, N, max);
+        ans(items, index+1, Far, wFar, N, max);
+    }
+};
+
+int main() {
+    std::vector<Items> items = Parser::input("input.txt");
+    int N = items[0].wei;
+    items.erase(items.begin());
+    int res = Solver::ans_k(items, N);
+    std::cout<< res << std::endl;
+    return 0;
+}
